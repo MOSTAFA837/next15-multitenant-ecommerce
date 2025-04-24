@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-y-4 p-8">
+    <div className="p-4">
       <div>
         <Button variant="elevated">I am button</Button>
       </div>
