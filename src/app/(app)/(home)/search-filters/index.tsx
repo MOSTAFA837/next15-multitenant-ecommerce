@@ -1,15 +1,18 @@
-import { CustomCategory } from "../types";
+"use client";
+
+import { useTRPC } from "@/trpc/client";
 import Categories from "./categories";
 import SearchInput from "./search-input";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
-interface Props {
-  data: CustomCategory[];
-}
+export default function SearchFilters() {
+  const trpc = useTRPC();
 
-export default function SearchFilters({ data }: Props) {
+  const { data } = useSuspenseQuery(trpc.categories.getMany.queryOptions());
+
   return (
     <div className="px-4 lg:px-12 py-8 border-b flex flex-col gap-4 w-full">
-      <SearchInput data={data} />
+      <SearchInput />
 
       <div className="hidden lg:block">
         <Categories data={data} />
@@ -17,3 +20,17 @@ export default function SearchFilters({ data }: Props) {
     </div>
   );
 }
+
+export const SearchFiltersLoading = () => {
+  return (
+    <div
+      className="px-4 lg:px-12 py-8 border-b flex flex-col gap-4 w-full"
+      style={{ backgroundColor: "#f5f5f5" }}
+    >
+      <SearchInput disabled />
+      <div className="hidden lg:block">
+        <div className="h-11" />
+      </div>
+    </div>
+  );
+};
