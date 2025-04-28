@@ -1,9 +1,9 @@
-import { headers as getHeaders, cookies as getCookies } from "next/headers";
+import { headers as getHeaders } from "next/headers";
 
 import { createTRPCRouter, baseProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
-import { AUTH_COOKIE } from "../constants";
 import { loginSchema, registerSchema } from "../schemas";
+import { generateAuthCookie } from "../utils";
 
 export const authRouter = createTRPCRouter({
   session: baseProcedure.query(async ({ ctx }) => {
@@ -61,13 +61,9 @@ export const authRouter = createTRPCRouter({
           });
         }
 
-        console.log("data from server", data); // Add this to inspect
-        const cookies = await getCookies();
-        cookies.set({
-          name: AUTH_COOKIE,
+        await generateAuthCookie({
+          prefix: ctx.payload.config.cookiePrefix,
           value: data.token,
-          httpOnly: true,
-          path: "/",
         });
       } catch (error) {
         console.error("Error in register mutation", error); // Add this to inspect any errors
@@ -90,18 +86,11 @@ export const authRouter = createTRPCRouter({
       });
     }
 
-    const cookies = await getCookies();
-    cookies.set({
-      name: AUTH_COOKIE,
+    await generateAuthCookie({
+      prefix: ctx.payload.config.cookiePrefix,
       value: data.token,
-      httpOnly: true,
-      path: "/",
     });
 
     return data;
-  }),
-  logout: baseProcedure.mutation(async () => {
-    const cookies = await getCookies();
-    cookies.delete(AUTH_COOKIE);
   }),
 });
